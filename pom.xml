@@ -9,33 +9,41 @@
     <version>1.0-SNAPSHOT</version>
 
     <properties>
-        <maven.compiler.source>23</maven.compiler.source>
-        <maven.compiler.target>23</maven.compiler.target>
+        <maven.compiler.source>11</maven.compiler.source>
+        <maven.compiler.target>11</maven.compiler.target>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
     </properties>
+
+    <repositories>
+        <repository>
+            <id>jogamp</id>
+            <url>https://jogamp.org/deployment/maven/</url>
+        </repository>
+    </repositories>
+
     <dependencies>
         <dependency>
             <groupId>org.jogamp.gluegen</groupId>
-            <artifactId>gluegen-rt-main</artifactId>
-            <version>2.3.2</version>
+            <artifactId>gluegen-rt</artifactId>
+            <version>2.4.0</version>
         </dependency>
 
         <dependency>
             <groupId>org.jogamp.jogl</groupId>
-            <artifactId>jogl-all-main</artifactId>
-            <version>2.3.2</version>
+            <artifactId>jogl-all</artifactId>
+            <version>2.4.0</version>
         </dependency>
 
         <dependency>
             <groupId>org.jogamp.jocl</groupId>
-            <artifactId>jocl-main</artifactId>
-            <version>2.3.2</version>
+            <artifactId>jocl</artifactId>
+            <version>2.4.0</version>
         </dependency>
 
         <dependency>
             <groupId>org.jogamp.joal</groupId>
-            <artifactId>joal-main</artifactId>
-            <version>2.3.2</version>
+            <artifactId>joal</artifactId>
+            <version>2.4.0</version>
         </dependency>
     </dependencies>
 

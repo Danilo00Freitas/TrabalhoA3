@@ -53,7 +53,7 @@ public class Game implements GLEventListener {
         //Rendering obstacles
 
         for (Obstacle obstacle: obstacles){
-            obstacle.draw();
+            obstacle.draw(gl);
         }
 
         //update everythings position (tack and obstacles)

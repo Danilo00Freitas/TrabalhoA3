@@ -2,14 +2,14 @@ package org.example;
 
 import com.jogamp.opengl.GL2;
 
-public class Obstacle {
+public class Rectangle {
     private float x, y, z;
     private float size;
 
-    public Obstacle(float x, float y, float size) {
+    public Rectangle(float x, float z, float size) {
         this.x = x;
-        this.y = y;
-        this.z = -50; // Começa longe do jogador
+        this.y = 0;
+        this.z = z;
         this.size = size;
     }
 
@@ -25,7 +25,7 @@ public class Obstacle {
         gl.glVertex3f(0.5f, -0.5f, -0.5f);
         gl.glVertex3f(0.5f, 0.5f, -0.5f);
         gl.glVertex3f(-0.5f, 0.5f, -0.5f);
-        // Continue para as outras faces do cubo... ---> VALIDAR ISSO
+
         gl.glEnd();
         gl.glPopMatrix();
     }

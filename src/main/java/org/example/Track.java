@@ -3,7 +3,7 @@ package org.example;
 import com.jogamp.opengl.GL2;
 
 public class Track {
-    private float positionZ = 0;
+    private float positionZ = 5;
 
     public void draw(GL2 gl) {
         gl.glPushMatrix();
@@ -24,7 +24,7 @@ public class Track {
         positionZ += 0.1f;
         if (positionZ > 10) {
         //Reseting track position
-            positionZ = 0;
+            positionZ = 5;
         }
     }
 }

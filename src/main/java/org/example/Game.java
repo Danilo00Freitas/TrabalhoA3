@@ -9,7 +9,7 @@ public class Game implements GLEventListener {
 
     private Track track;
     private Models models;
-    private Obstacle[] obstacles;
+    private Rectangle[] rectangles;
     private Lighting lighting;
     private int maxObstacles = 10;
 
@@ -21,16 +21,16 @@ public class Game implements GLEventListener {
 
         //Setting render
         gl.glEnable(GL2.GL_DEPTH_TEST);
-        gl.glClearColor(0,0,0,1);
+        gl.glClearColor(0, 0, 0, 1);
 
         //Initializing objects
         track = new Track();
         models = new Models();
-        obstacles = new Obstacle[maxObstacles];
+        rectangles = new Rectangle[maxObstacles];
         lighting = new Lighting();
 
         // Generating random obstacles
-        generateObstacles();
+        generateRectangle();
     }
 
     @Override
@@ -52,8 +52,8 @@ public class Game implements GLEventListener {
 
         //Rendering obstacles
 
-        for (Obstacle obstacle: obstacles){
-            obstacle.draw(gl);
+        for (Rectangle rectangle : rectangles) {
+            rectangle.draw(gl);
         }
 
         //update everythings position (tack and obstacles)
@@ -67,7 +67,8 @@ public class Game implements GLEventListener {
     }
 
     @Override
-    public void dispose(GLAutoDrawable drawable) {}
+    public void dispose(GLAutoDrawable drawable) {
+    }
 
     private void setCamera(GL2 gl) {
         GLU glu = new GLU();
@@ -79,30 +80,34 @@ public class Game implements GLEventListener {
         glu.gluLookAt(0, 5, 10, 0, 0, -5, 0, 1, 0);
     }
 
-    private void generateObstacles(){
-        for (int i = 0; i < maxObstacles; i++){
-            obstacles[i] = new Obstacle(randomPosition(), randomPosition(), randomSize());
+    private void generateRectangle() {
+        for (int i = 0; i < maxObstacles; i++) {
+            float zPosition = (i + 1) * -10;
+            float cubeSize = 2.5f;
+            rectangles[i] = new Rectangle(randomXPosition(), zPosition, cubeSize);
         }
     }
 
     private void update() {
 
         track.move();
-        for (Obstacle obstacle : obstacles) {
-            obstacle.move();
+        for (Rectangle rectangle : rectangles) {
+            rectangle.move();
 
             //CREATE THE PROCEDURAL LOGIC
             //ADDING NEW OBSTACLES WHILE THE
         }
     }
 
-    private float randomPosition() {
-        return (float) (Math.random() * 10 - 5); // Gera posições aleatórias na pista
+    private float randomXPosition() {
+
+        int sign = Math.random() > 0.5 ? 1 : -1;
+        return (float) (Math.floor(Math.random() * 5 * sign));
     }
 
-    private float randomSize() {
-        return (float) (Math.random() * 1.5 + 0.5); // Tamanhos variáveis dos obstáculos
-    }
 }
+
+
+
 
 

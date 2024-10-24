@@ -1,17 +1,37 @@
 package org.example;
 
+import com.jogamp.newt.event.KeyAdapter;
+import com.jogamp.newt.event.KeyEvent;
 import com.jogamp.opengl.GL2;
 import com.jogamp.opengl.GLAutoDrawable;
 import com.jogamp.opengl.GLEventListener;
+import com.jogamp.opengl.awt.GLCanvas;
 import com.jogamp.opengl.glu.GLU;
 
 public class Game implements GLEventListener {
 
     private Track track;
-    private Models models;
+    private Models model;
     private Rectangle[] rectangles;
     private Lighting lighting;
+    private Controls controls;
     private int maxObstacles = 10;
+
+
+    // Variáveis de posição do objeto
+    private float posX = 0.0f;
+    private float posY = 0.0f;
+    private boolean isJumping = false;
+    private float jumpMaxHeight = 3.0f;
+    private float jumpVelocity = 0.2f;
+    private float gravity = 0.2f;
+    private float jumpTime = 0.0f;
+
+    public Game(GLCanvas canvas) {
+        controls = new Controls();
+        controls.initKeyListeners(canvas);
+    }
+
 
 
     @Override
@@ -25,7 +45,7 @@ public class Game implements GLEventListener {
 
         //Initializing objects
         track = new Track();
-        models = new Models();
+        model = new Models();
         rectangles = new Rectangle[maxObstacles];
         lighting = new Lighting();
 
@@ -33,10 +53,48 @@ public class Game implements GLEventListener {
         generateRectangle();
     }
 
+
     @Override
     public void display(GLAutoDrawable glAutoDrawable) {
         GL2 gl = glAutoDrawable.getGL().getGL2();
         gl.glClear(GL2.GL_COLOR_BUFFER_BIT | GL2.GL_DEPTH_BUFFER_BIT);
+
+        // Atualizar posição com base nas teclas pressionadas
+
+        float moveSpeed = 0.1f;
+
+        if (controls.isMoveLeft()) {
+            posX -= moveSpeed;
+        }
+        if (controls.isMoveRight()) {
+            posX += moveSpeed;
+        }
+
+        //Inicia pulo
+        if (controls.isJump() && !isJumping) {
+            isJumping = true;
+            jumpTime = 0;
+        }
+
+        // Lógica do pulo
+        if (isJumping) {
+            if (jumpTime < jumpMaxHeight / jumpVelocity) { // Calcula a duração do pulo
+                posY += jumpVelocity; // Aumenta a altura
+                jumpTime += 1; // Incrementa o tempo de pulo
+            } else {
+                isJumping = false; // Para o pulo ao atingir a altura máxima
+            }
+        }
+
+        // Descida
+        if (!isJumping) {
+            if (posY > 0) {
+                posY -= gravity; // Desce gradualmente
+                if (posY < 0) {
+                    posY = 0; // Garante que não passe abaixo de 0
+                }
+            }
+        }
 
         //setting camera and perspective
         setCamera(gl);
@@ -48,7 +106,7 @@ public class Game implements GLEventListener {
         track.draw(gl);
 
         // Rendering the dino
-        models.draw(gl);
+        model.draw(gl,posX,posY);
 
         //Rendering obstacles
 
@@ -91,11 +149,9 @@ public class Game implements GLEventListener {
     private void update() {
 
         track.move();
+
         for (Rectangle rectangle : rectangles) {
             rectangle.move();
-
-            //CREATE THE PROCEDURAL LOGIC
-            //ADDING NEW OBSTACLES WHILE THE
         }
     }
 
@@ -104,6 +160,8 @@ public class Game implements GLEventListener {
         int sign = Math.random() > 0.5 ? 1 : -1;
         return (float) (Math.floor(Math.random() * 5 * sign));
     }
+
+
 
 }
 

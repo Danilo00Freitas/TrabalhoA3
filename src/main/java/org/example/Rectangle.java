@@ -15,10 +15,10 @@ public class Rectangle {
 
     public void draw(GL2 gl) {
         gl.glPushMatrix();
-        gl.glTranslatef(x, y, z);  // Move o cubo para a posição especificada
-        gl.glScalef(size, size, size);  // Ajusta o tamanho do cubo de acordo com o fator "size"
+        gl.glTranslatef(x, y, z);
+        gl.glScalef(size, size, size);
 
-        gl.glColor3f(1, 0, 0);  // Define a cor do cubo como vermelho
+        gl.glColor3f(1, 0, 0);
 
         // Desenhar as seis faces do cubo
         gl.glBegin(GL2.GL_QUADS);
@@ -66,7 +66,7 @@ public class Rectangle {
 
     public void move() {
         //Moves the obstacle towards the player
-        z += 0.1f; 
+        z += 0.3f;
         if (z > 5) {
             resetObstaclePosition();
         }

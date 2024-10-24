@@ -15,7 +15,7 @@ public class Main {
 
         // Cria o canvas do JOGL
         GLCanvas canvas = new GLCanvas(capabilities);
-        Game game = new Game();
+        Game game = new Game(canvas);
         canvas.addGLEventListener(game);
         canvas.setSize(800, 600);
 

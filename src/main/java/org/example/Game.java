@@ -1,7 +1,5 @@
 package org.example;
 
-import com.jogamp.newt.event.KeyAdapter;
-import com.jogamp.newt.event.KeyEvent;
 import com.jogamp.opengl.GL2;
 import com.jogamp.opengl.GLAutoDrawable;
 import com.jogamp.opengl.GLEventListener;
@@ -17,39 +15,37 @@ public class Game implements GLEventListener {
     private Controls controls;
     private int maxObstacles = 10;
 
-
-    // Variáveis de posição do objeto
     private float posX = 0.0f;
     private float posY = 0.0f;
     private boolean isJumping = false;
     private float jumpMaxHeight = 3.0f;
     private float jumpVelocity = 0.2f;
     private float gravity = 0.2f;
-    private float jumpTime = 0.0f;
+    private Boolean canJump;
+    private long jumpCooldown = 1000;
+    private long lastJumpTime = 0;
 
-    public Game(GLCanvas canvas) {
+    public Game() {
         controls = new Controls();
-        controls.initKeyListeners(canvas);
     }
 
-
+    public void initControls(GLCanvas canvas) {
+        controls.initKeyListeners(canvas);
+    }
 
     @Override
     public void init(GLAutoDrawable glAutoDrawable) {
         GL2 gl = glAutoDrawable.getGL().getGL2();
         GLU glu = new GLU();
 
-        //Setting render
         gl.glEnable(GL2.GL_DEPTH_TEST);
         gl.glClearColor(0, 0, 0, 1);
 
-        //Initializing objects
         track = new Track();
-        model = new Models();
+        model = new Models(1.0f);
         rectangles = new Rectangle[maxObstacles];
         lighting = new Lighting();
 
-        // Generating random obstacles
         generateRectangle();
     }
 
@@ -65,34 +61,22 @@ public class Game implements GLEventListener {
 
         if (controls.isMoveLeft()) {
             posX -= moveSpeed;
+            if (posX < -5.0f){posX = - 5.0f;}
+
         }
         if (controls.isMoveRight()) {
             posX += moveSpeed;
+            if (posX > 5.0f){posX = 5.0f;}
         }
 
-        //Inicia pulo
-        if (controls.isJump() && !isJumping) {
-            isJumping = true;
-            jumpTime = 0;
-        }
+        handleJump();
 
-        // Lógica do pulo
-        if (isJumping) {
-            if (jumpTime < jumpMaxHeight / jumpVelocity) { // Calcula a duração do pulo
-                posY += jumpVelocity; // Aumenta a altura
-                jumpTime += 1; // Incrementa o tempo de pulo
-            } else {
-                isJumping = false; // Para o pulo ao atingir a altura máxima
-            }
-        }
-
-        // Descida
-        if (!isJumping) {
-            if (posY > 0) {
-                posY -= gravity; // Desce gradualmente
-                if (posY < 0) {
-                    posY = 0; // Garante que não passe abaixo de 0
-                }
+        for (Rectangle rectangle : rectangles) {
+            if (rectangle.checkCollisionAndEndGame(posX, posY, model.getCubeSize())) {
+                // Colisão detectada, o jogo deve ser finalizado ou reiniciado
+                System.out.println("Fim do Jogo!");
+                // Aqui você pode adicionar lógica para finalizar ou reiniciar o jogo
+                return;  // Se detectar uma colisão, não continue com o desenho
             }
         }
 
@@ -105,7 +89,7 @@ public class Game implements GLEventListener {
         //Rendering the track
         track.draw(gl);
 
-        // Rendering the dino
+        // Rendering the cube
         model.draw(gl,posX,posY);
 
         //Rendering obstacles
@@ -114,9 +98,9 @@ public class Game implements GLEventListener {
             rectangle.draw(gl);
         }
 
-        //update everythings position (tack and obstacles)
         update();
     }
+
 
     @Override
     public void reshape(GLAutoDrawable drawable, int x, int y, int width, int height) {
@@ -145,23 +129,42 @@ public class Game implements GLEventListener {
             rectangles[i] = new Rectangle(randomXPosition(), zPosition, cubeSize);
         }
     }
-
+    
     private void update() {
-
         track.move();
 
         for (Rectangle rectangle : rectangles) {
-            rectangle.move();
+            rectangle.move(randomXPosition());
         }
     }
 
-    private float randomXPosition() {
+    public static float randomXPosition() {
 
         int sign = Math.random() > 0.5 ? 1 : -1;
         return (float) (Math.floor(Math.random() * 5 * sign));
     }
 
+    private void handleJump() {
+        if (controls.isJump() && !isJumping && canJump()) {
+            isJumping = true;
+            lastJumpTime = System.currentTimeMillis();
+        }
 
+        if (isJumping) {
+            posY += jumpVelocity;
+            if (posY >= jumpMaxHeight) {
+                isJumping = false;
+            }
+        } else if (posY > 0) {
+            posY -= gravity;
+            if (posY < 0) posY = 0;
+        }
+    }
+
+    private Boolean canJump() {
+        long currentTime = System.currentTimeMillis();
+        return (currentTime - lastJumpTime) >= jumpCooldown;
+    }
 
 }
 

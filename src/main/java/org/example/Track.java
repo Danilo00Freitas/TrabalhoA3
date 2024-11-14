@@ -23,7 +23,7 @@ public class Track {
         //Track move speed
         positionZ += 0.1f;
         if (positionZ > 10) {
-        //Reseting track position
+            //Reseting track position
             positionZ = 5;
         }
     }

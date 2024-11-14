@@ -1,9 +1,12 @@
 package org.example;
 
 import com.jogamp.opengl.GL2;
+import org.example.Interface.GameInterface;
 
 public class Rectangle {
-    private float x, y, z;
+    private final float speed = 0.3f;
+    private float x, y;
+    public float z;
     private float size;
 
     public Rectangle(float x, float z, float size) {
@@ -11,6 +14,7 @@ public class Rectangle {
         this.y = 0;
         this.z = z;
         this.size = size;
+
     }
 
     public void draw(GL2 gl) {
@@ -64,15 +68,49 @@ public class Rectangle {
         gl.glPopMatrix();
     }
 
-    public void move() {
+    public void move(float newX) {
         //Moves the obstacle towards the player
-        z += 0.3f;
+        z += speed;
         if (z > 5) {
-            resetObstaclePosition();
+            resetObstaclePosition(newX);
         }
     }
 
-    private void resetObstaclePosition() {
-        z = -50; 
+    private void resetObstaclePosition(float newX) {
+        this.z = -50;
+        this.x = newX;
+
     }
+
+    public boolean checkCollisionAndEndGame(float otherX, float otherZ, float otherSize) {
+        // Metade do tamanho do objeto atual e do outro objeto
+        float halfSize = size / 2;
+        float otherHalfSize = otherSize / 2;
+
+        // Calcular os limites do objeto atual
+        float left = x - halfSize;
+        float right = x + halfSize;
+        float front = z + halfSize;
+        float back = z - halfSize;
+
+        // Calcular os limites do outro objeto
+        float otherLeft = otherX - otherHalfSize;
+        float otherRight = otherX + otherHalfSize;
+        float otherFront = otherZ + otherHalfSize;
+        float otherBack = otherZ - otherHalfSize;
+
+        // Verificar se há interseção entre os limites dos dois objetos
+        boolean collisionX = (right >= otherLeft) && (left <= otherRight);
+        boolean collisionZ = (front >= otherBack) && (back <= otherFront);
+
+        // Retornar true se houver colisão em ambas as direções
+        if (collisionX && collisionZ) {
+            System.out.println("Colisão detectada! Fim do jogo.");
+            return true;
+        }
+        return false;
+    }
+
+
 }
+

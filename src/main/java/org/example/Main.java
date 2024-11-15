@@ -4,6 +4,6 @@ import org.example.Interface.GameInterface;
 
 public class Main {
     public static void main(String[] args) {
-        new GameInterface().setVisible(true);
+        new GameInterface().showMenu();
     }
 }

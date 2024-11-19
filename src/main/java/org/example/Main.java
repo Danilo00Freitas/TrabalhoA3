@@ -4,6 +4,7 @@ import org.example.Interface.GameInterface;
 
 public class Main {
     public static void main(String[] args) {
-        new GameInterface().showMenu();
+        GameInterface gameInterface = new GameInterface();
+        gameInterface.showMenu();
     }
 }

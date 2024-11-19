@@ -104,11 +104,7 @@ public class Rectangle {
         boolean collisionZ = (front >= otherBack) && (back <= otherFront);
 
         // Retornar true se houver colisão em ambas as direções
-        if (collisionX && collisionZ) {
-            System.out.println("Colisão detectada! Fim do jogo.");
-            return true;
-        }
-        return false;
+        return collisionX && collisionZ;
     }
 
 

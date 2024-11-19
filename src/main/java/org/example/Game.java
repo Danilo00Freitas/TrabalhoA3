@@ -5,6 +5,7 @@ import com.jogamp.opengl.GLAutoDrawable;
 import com.jogamp.opengl.GLEventListener;
 import com.jogamp.opengl.awt.GLCanvas;
 import com.jogamp.opengl.glu.GLU;
+import org.example.Interface.GameInterface;
 
 public class Game implements GLEventListener {
 
@@ -14,7 +15,6 @@ public class Game implements GLEventListener {
     private Lighting lighting;
     private Controls controls;
     private int maxObstacles = 10;
-
     private float posX = 0.0f;
     private float posY = 0.0f;
     private boolean isJumping = false;
@@ -24,9 +24,19 @@ public class Game implements GLEventListener {
     private Boolean canJump;
     private long jumpCooldown = 1000;
     private long lastJumpTime = 0;
+    public enum gameState{MENU,INGAME,GAMEOVER};
+    private gameState currentGameState = gameState.MENU;
+    private GameInterface gameInterface;
 
     public Game() {
         controls = new Controls();
+    }
+    public void setGameInterface(GameInterface gameInterface) {
+        this.gameInterface = gameInterface;
+    }
+
+    public void setGameState(gameState state){
+        this.currentGameState = state;
     }
 
     public void initControls(GLCanvas canvas) {
@@ -52,13 +62,11 @@ public class Game implements GLEventListener {
 
     @Override
     public void display(GLAutoDrawable glAutoDrawable) {
+        currentGameState = gameState.INGAME;
         GL2 gl = glAutoDrawable.getGL().getGL2();
         gl.glClear(GL2.GL_COLOR_BUFFER_BIT | GL2.GL_DEPTH_BUFFER_BIT);
-
         // Atualizar posição com base nas teclas pressionadas
-
         float moveSpeed = 0.1f;
-
         if (controls.isMoveLeft()) {
             posX -= moveSpeed;
             if (posX < -5.0f){posX = - 5.0f;}
@@ -73,10 +81,11 @@ public class Game implements GLEventListener {
 
         for (Rectangle rectangle : rectangles) {
             if (rectangle.checkCollisionAndEndGame(posX, posY, model.getCubeSize())) {
-                // Colisão detectada, o jogo deve ser finalizado ou reiniciado
-                System.out.println("Fim do Jogo!");
-                // Aqui você pode adicionar lógica para finalizar ou reiniciar o jogo
-                return;  // Se detectar uma colisão, não continue com o desenho
+                if (gameInterface != null) {
+                    currentGameState = gameState.GAMEOVER;
+                    gameInterface.showGameOver();
+                }
+                return;
             }
         }
 
@@ -165,6 +174,21 @@ public class Game implements GLEventListener {
         long currentTime = System.currentTimeMillis();
         return (currentTime - lastJumpTime) >= jumpCooldown;
     }
+
+    public void resetGame() {
+        // Resetando a posição do jogador
+        posX = 0.0f;
+        posY = 0.0f;
+        isJumping = false;
+        canJump = true;
+
+        // Resetando os obstáculos
+        generateRectangle();
+
+        // Reiniciando o estado do jogo
+        currentGameState = gameState.INGAME;
+    }
+
 
 }
 

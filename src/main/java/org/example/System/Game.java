@@ -5,11 +5,19 @@ import com.jogamp.opengl.GLAutoDrawable;
 import com.jogamp.opengl.GLEventListener;
 import com.jogamp.opengl.awt.GLCanvas;
 import com.jogamp.opengl.glu.GLU;
+import com.jogamp.opengl.util.texture.Texture;
+import com.jogamp.opengl.util.texture.TextureIO;
 import org.example.Interface.GameInterface;
+import org.example.Models.Background;
 import org.example.Models.Models;
 import org.example.Models.ObstacleAndPoint;
 import org.example.Models.Track;
 
+import javax.imageio.ImageIO;
+import java.awt.image.BufferedImage;
+import java.io.ByteArrayInputStream;
+import java.io.ByteArrayOutputStream;
+import java.io.File;
 import java.io.IOException;
 
 
@@ -33,9 +41,27 @@ public class Game implements GLEventListener {
     private boolean firstSpawn = true;
     private GameInterface gameInterface;
     private int score;
+    private Texture pointTexture;
+    private Texture obstacleTexture;
+    private Texture trackTexture;
+    private Texture backgroundTexture;
+    private Background background;
+    private Texture modelTexture;
 
-    public Game()  {
+
+    public Game() throws IOException {
         controls = new Controls();
+    }
+
+    public Texture loadTexture(String path) throws IOException {
+        // Lê a imagem
+        BufferedImage img = ImageIO.read(new File(path));
+        // Converte a BufferedImage para um InputStream
+        ByteArrayOutputStream byteArrayOutputStream = new ByteArrayOutputStream();
+        ImageIO.write(img, "JPG", byteArrayOutputStream);
+        ByteArrayInputStream byteArrayInputStream = new ByteArrayInputStream(byteArrayOutputStream.toByteArray());
+        // Cria a textura a partir do InputStream
+        return TextureIO.newTexture(byteArrayInputStream, true, "JPG");
     }
 
     public static float randomXPosition() {
@@ -57,17 +83,32 @@ public class Game implements GLEventListener {
     }
 
     @Override
-    public void init(GLAutoDrawable glAutoDrawable) {
+    public void init(GLAutoDrawable glAutoDrawable){
         GL2 gl = glAutoDrawable.getGL().getGL2();
         GLU glu = new GLU();
+
+        try {
+            pointTexture = loadTexture("/home/dandan/Documents/faculdade/computGraf/A3/TrabalhoA3/src/main/java/org/example/Models/textures/star.jpg");
+            
+            obstacleTexture = loadTexture("/home/dandan/Documents/faculdade/computGraf/A3/TrabalhoA3/src/main/java/org/example/Models/textures/asteroid2.jpg");
+            
+            trackTexture = loadTexture("/home/dandan/Documents/faculdade/computGraf/A3/TrabalhoA3/src/main/java/org/example/Models/textures/space.jpg");
+
+            backgroundTexture = loadTexture("/home/dandan/Documents/faculdade/computGraf/A3/TrabalhoA3/src/main/java/org/example/Models/textures/space.jpg");
+
+            modelTexture = loadTexture("/home/dandan/Documents/faculdade/computGraf/A3/TrabalhoA3/src/main/java/org/example/Models/textures/black_hole.jpg");
+        } catch (IOException e) {
+            throw new RuntimeException(e);
+        }
 
         gl.glEnable(GL2.GL_DEPTH_TEST);
         gl.glClearColor(0, 0, 0, 1);
 
-        track = new Track();
-        model = new Models(1.0f);
+        track = new Track(trackTexture);
+        model = new Models(1.0f,modelTexture);
         obstacleAndPoints = new ObstacleAndPoint[maxObstacles];
         lighting = new Lighting();
+        background = new Background(backgroundTexture);
 
         try {
             generateRectangle();
@@ -82,6 +123,7 @@ public class Game implements GLEventListener {
         currentGameState = gameState.INGAME;
         GL2 gl = glAutoDrawable.getGL().getGL2();
         gl.glClear(GL2.GL_COLOR_BUFFER_BIT | GL2.GL_DEPTH_BUFFER_BIT);
+
         // Atualizar posição com base nas teclas pressionadas
         float moveSpeed = 0.1f;
         if (controls.isMoveLeft()) {
@@ -119,6 +161,7 @@ public class Game implements GLEventListener {
         //setting lighting
         lighting.applyLighting(gl);
 
+        background.draw(gl);
         //Rendering the track
         track.draw(gl);
 
@@ -169,7 +212,8 @@ public class Game implements GLEventListener {
             float zPosition = (i + 1) * -10;
             float cubeSize = 2.0f;
             if (firstSpawn){zPosition += -50;}
-            obstacleAndPoints[i] = new ObstacleAndPoint(randomXPosition(), zPosition, cubeSize);
+
+            obstacleAndPoints[i] = new ObstacleAndPoint(randomXPosition(), zPosition, cubeSize,pointTexture,obstacleTexture);
         }
         firstSpawn = false;
     }
@@ -217,8 +261,3 @@ public class Game implements GLEventListener {
 
     public enum gameState {MENU, INGAME, GAMEOVER}
 }
-
-
-
-
-

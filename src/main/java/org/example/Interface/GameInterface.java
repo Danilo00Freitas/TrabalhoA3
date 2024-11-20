@@ -8,6 +8,7 @@ import org.example.System.Game;
 
 import javax.swing.*;
 import java.awt.*;
+import java.io.IOException;
 
 public class GameInterface {
 
@@ -18,7 +19,7 @@ public class GameInterface {
     private GameState currentState = GameState.MENU;
     private JFrame gameFrame;
 
-    public GameInterface() {
+    public GameInterface() throws IOException {
         // Configurar OpenGL (JOGL)
         GLProfile profile = GLProfile.get(GLProfile.GL2);
         GLCapabilities capabilities = new GLCapabilities(profile);
@@ -36,7 +37,13 @@ public class GameInterface {
         menus = new Menus(
                 e -> startGame(),       // Listener para iniciar o jogo
                 e -> System.exit(0),    // Listener para sair do jogo
-                e -> restartGame()         // Listener para reiniciar após Game Over
+                e -> {
+                    try {
+                        restartGame();
+                    } catch (IOException ex) {
+                        throw new RuntimeException(ex);
+                    }
+                }         // Listener para reiniciar após Game Over
         );
         menus.setGame(game);
         showMenu();
@@ -83,7 +90,7 @@ public class GameInterface {
         }
     }
 
-    private void restartGame() {
+    private void restartGame() throws IOException {
         // Finaliza o estado atual do jogo
         stopGame();
 

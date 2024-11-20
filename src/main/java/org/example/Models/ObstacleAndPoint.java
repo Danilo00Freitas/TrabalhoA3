@@ -1,6 +1,15 @@
 package org.example.Models;
 
 import com.jogamp.opengl.GL2;
+import com.jogamp.opengl.util.texture.Texture;
+import com.jogamp.opengl.util.texture.TextureIO;
+
+import javax.imageio.ImageIO;
+import java.awt.image.BufferedImage;
+import java.io.ByteArrayInputStream;
+import java.io.ByteArrayOutputStream;
+import java.io.File;
+import java.io.IOException;
 
 public class ObstacleAndPoint {
     private final float speed = 0.3f;
@@ -10,14 +19,31 @@ public class ObstacleAndPoint {
     private boolean isCollected;
     public float z;
     private float x;
+    private Texture pointTexture;
+    private Texture obstacleTexture;
 
-    public ObstacleAndPoint(float x, float z, float size) {
+    public ObstacleAndPoint(float x, float z, float size) throws IOException {
         this.x = x;
         this.y = 0;
         this.z = z;
         this.size = size;
         this.pointSize = size / 4;
         this.isCollected = false;
+
+        // Carregar as texturas
+        pointTexture = loadTexture("/home/dandan/Documents/faculdade/computGraf/A3/TrabalhoA3/src/main/java/org/example/Models/textures/point.jpg");
+        obstacleTexture = loadTexture("/home/dandan/Documents/faculdade/computGraf/A3/TrabalhoA3/src/main/java/org/example/Models/textures/obstacle.jpg");
+    }
+
+    private Texture loadTexture(String path) throws IOException {
+        // Lê a imagem
+        BufferedImage img = ImageIO.read(new File(path));
+        // Converte a BufferedImage para um InputStream
+        ByteArrayOutputStream byteArrayOutputStream = new ByteArrayOutputStream();
+        ImageIO.write(img, "png", byteArrayOutputStream);
+        ByteArrayInputStream byteArrayInputStream = new ByteArrayInputStream(byteArrayOutputStream.toByteArray());
+        // Cria a textura a partir do InputStream
+        return TextureIO.newTexture(byteArrayInputStream, true, "PNG");
     }
 
     public void drawObstacle(GL2 gl) {
@@ -25,105 +51,118 @@ public class ObstacleAndPoint {
         gl.glTranslatef(x, y, z);
         gl.glScalef(size, size, size);
 
-        gl.glColor3f(1, 0, 0);
+        // Ativar a textura
+        obstacleTexture.enable(gl);
+        obstacleTexture.bind(gl);
+
+        gl.glColor3f(1, 1, 1); // Branco, pois a textura já contém a cor
 
         // Desenhar as seis faces do cubo
         gl.glBegin(GL2.GL_QUADS);
 
         // Face frontal
-        gl.glVertex3f(-0.5f, -0.5f, 0.5f);
-        gl.glVertex3f(0.5f, -0.5f, 0.5f);
-        gl.glVertex3f(0.5f, 0.5f, 0.5f);
-        gl.glVertex3f(-0.5f, 0.5f, 0.5f);
+        gl.glTexCoord2f(0, 0); gl.glVertex3f(-0.5f, -0.5f, 0.5f);
+        gl.glTexCoord2f(1, 0); gl.glVertex3f(0.5f, -0.5f, 0.5f);
+        gl.glTexCoord2f(1, 1); gl.glVertex3f(0.5f, 0.5f, 0.5f);
+        gl.glTexCoord2f(0, 1); gl.glVertex3f(-0.5f, 0.5f, 0.5f);
 
         // Face traseira
-        gl.glVertex3f(-0.5f, -0.5f, -0.5f);
-        gl.glVertex3f(0.5f, -0.5f, -0.5f);
-        gl.glVertex3f(0.5f, 0.5f, -0.5f);
-        gl.glVertex3f(-0.5f, 0.5f, -0.5f);
+        gl.glTexCoord2f(0, 0); gl.glVertex3f(-0.5f, -0.5f, -0.5f);
+        gl.glTexCoord2f(1, 0); gl.glVertex3f(0.5f, -0.5f, -0.5f);
+        gl.glTexCoord2f(1, 1); gl.glVertex3f(0.5f, 0.5f, -0.5f);
+        gl.glTexCoord2f(0, 1); gl.glVertex3f(-0.5f, 0.5f, -0.5f);
 
         // Face superior
-        gl.glVertex3f(-0.5f, 0.5f, 0.5f);
-        gl.glVertex3f(0.5f, 0.5f, 0.5f);
-        gl.glVertex3f(0.5f, 0.5f, -0.5f);
-        gl.glVertex3f(-0.5f, 0.5f, -0.5f);
+        gl.glTexCoord2f(0, 0); gl.glVertex3f(-0.5f, 0.5f, 0.5f);
+        gl.glTexCoord2f(1, 0); gl.glVertex3f(0.5f, 0.5f, 0.5f);
+        gl.glTexCoord2f(1, 1); gl.glVertex3f(0.5f, 0.5f, -0.5f);
+        gl.glTexCoord2f(0, 1); gl.glVertex3f(-0.5f, 0.5f, -0.5f);
 
         // Face inferior
-        gl.glVertex3f(-0.5f, -0.5f, 0.5f);
-        gl.glVertex3f(0.5f, -0.5f, 0.5f);
-        gl.glVertex3f(0.5f, -0.5f, -0.5f);
-        gl.glVertex3f(-0.5f, -0.5f, -0.5f);
+        gl.glTexCoord2f(0, 0); gl.glVertex3f(-0.5f, -0.5f, 0.5f);
+        gl.glTexCoord2f(1, 0); gl.glVertex3f(0.5f, -0.5f, 0.5f);
+        gl.glTexCoord2f(1, 1); gl.glVertex3f(0.5f, -0.5f, -0.5f);
+        gl.glTexCoord2f(0, 1); gl.glVertex3f(-0.5f, -0.5f, -0.5f);
 
         // Face lateral esquerda
-        gl.glVertex3f(-0.5f, -0.5f, 0.5f);
-        gl.glVertex3f(-0.5f, 0.5f, 0.5f);
-        gl.glVertex3f(-0.5f, 0.5f, -0.5f);
-        gl.glVertex3f(-0.5f, -0.5f, -0.5f);
+        gl.glTexCoord2f(0, 0); gl.glVertex3f(-0.5f, -0.5f, 0.5f);
+        gl.glTexCoord2f(1, 0); gl.glVertex3f(-0.5f, 0.5f, 0.5f);
+        gl.glTexCoord2f(1, 1); gl.glVertex3f(-0.5f, 0.5f, -0.5f);
+        gl.glTexCoord2f(0, 1); gl.glVertex3f(-0.5f, -0.5f, -0.5f);
 
         // Face lateral direita
-        gl.glVertex3f(0.5f, -0.5f, 0.5f);
-        gl.glVertex3f(0.5f, 0.5f, 0.5f);
-        gl.glVertex3f(0.5f, 0.5f, -0.5f);
-        gl.glVertex3f(0.5f, -0.5f, -0.5f);
+        gl.glTexCoord2f(0, 0); gl.glVertex3f(0.5f, -0.5f, 0.5f);
+        gl.glTexCoord2f(1, 0); gl.glVertex3f(0.5f, 0.5f, 0.5f);
+        gl.glTexCoord2f(1, 1); gl.glVertex3f(0.5f, 0.5f, -0.5f);
+        gl.glTexCoord2f(0, 1); gl.glVertex3f(0.5f, -0.5f, -0.5f);
 
         gl.glEnd();
 
         gl.glPopMatrix();
+
+        // Desativar a textura
+        obstacleTexture.disable(gl);
     }
 
     public void drawPoint(GL2 gl) {
-        boolean isColected = false;
         if (isCollected) return;
+
         gl.glPushMatrix();
         gl.glTranslatef(x, 3.5f, z);
         gl.glScalef(pointSize, pointSize, pointSize);
 
-        gl.glColor3f(1, 0, 0);
+        // Ativar a textura
+        pointTexture.enable(gl);
+        pointTexture.bind(gl);
+
+        gl.glColor3f(1, 1, 1); // Branco, pois a textura já contém a cor
 
         // Desenhar as seis faces do cubo
         gl.glBegin(GL2.GL_QUADS);
 
         // Face frontal
-        gl.glVertex3f(-0.5f, -0.5f, 0.5f);
-        gl.glVertex3f(0.5f, -0.5f, 0.5f);
-        gl.glVertex3f(0.5f, 0.5f, 0.5f);
-        gl.glVertex3f(-0.5f, 0.5f, 0.5f);
+        gl.glTexCoord2f(0, 0); gl.glVertex3f(-0.5f, -0.5f, 0.5f);
+        gl.glTexCoord2f(1, 0); gl.glVertex3f(0.5f, -0.5f, 0.5f);
+        gl.glTexCoord2f(1, 1); gl.glVertex3f(0.5f, 0.5f, 0.5f);
+        gl.glTexCoord2f(0, 1); gl.glVertex3f(-0.5f, 0.5f, 0.5f);
 
         // Face traseira
-        gl.glVertex3f(-0.5f, -0.5f, -0.5f);
-        gl.glVertex3f(0.5f, -0.5f, -0.5f);
-        gl.glVertex3f(0.5f, 0.5f, -0.5f);
-        gl.glVertex3f(-0.5f, 0.5f, -0.5f);
+        gl.glTexCoord2f(0, 0); gl.glVertex3f(-0.5f, -0.5f, -0.5f);
+        gl.glTexCoord2f(1, 0); gl.glVertex3f(0.5f, -0.5f, -0.5f);
+        gl.glTexCoord2f(1, 1); gl.glVertex3f(0.5f, 0.5f, -0.5f);
+        gl.glTexCoord2f(0, 1); gl.glVertex3f(-0.5f, 0.5f, -0.5f);
 
         // Face superior
-        gl.glVertex3f(-0.5f, 0.5f, 0.5f);
-        gl.glVertex3f(0.5f, 0.5f, 0.5f);
-        gl.glVertex3f(0.5f, 0.5f, -0.5f);
-        gl.glVertex3f(-0.5f, 0.5f, -0.5f);
+        gl.glTexCoord2f(0, 0); gl.glVertex3f(-0.5f, 0.5f, 0.5f);
+        gl.glTexCoord2f(1, 0); gl.glVertex3f(0.5f, 0.5f, 0.5f);
+        gl.glTexCoord2f(1, 1); gl.glVertex3f(0.5f, 0.5f, -0.5f);
+        gl.glTexCoord2f(0, 1); gl.glVertex3f(-0.5f, 0.5f, -0.5f);
 
         // Face inferior
-        gl.glVertex3f(-0.5f, -0.5f, 0.5f);
-        gl.glVertex3f(0.5f, -0.5f, 0.5f);
-        gl.glVertex3f(0.5f, -0.5f, -0.5f);
-        gl.glVertex3f(-0.5f, -0.5f, -0.5f);
+        gl.glTexCoord2f(0, 0); gl.glVertex3f(-0.5f, -0.5f, 0.5f);
+        gl.glTexCoord2f(1, 0); gl.glVertex3f(0.5f, -0.5f, 0.5f);
+        gl.glTexCoord2f(1, 1); gl.glVertex3f(0.5f, -0.5f, -0.5f);
+        gl.glTexCoord2f(0, 1); gl.glVertex3f(-0.5f, -0.5f, -0.5f);
 
         // Face lateral esquerda
-        gl.glVertex3f(-0.5f, -0.5f, 0.5f);
-        gl.glVertex3f(-0.5f, 0.5f, 0.5f);
-        gl.glVertex3f(-0.5f, 0.5f, -0.5f);
-        gl.glVertex3f(-0.5f, -0.5f, -0.5f);
+        gl.glTexCoord2f(0, 0); gl.glVertex3f(-0.5f, -0.5f, 0.5f);
+        gl.glTexCoord2f(1, 0); gl.glVertex3f(-0.5f, 0.5f, 0.5f);
+        gl.glTexCoord2f(1, 1); gl.glVertex3f(-0.5f, 0.5f, -0.5f);
+        gl.glTexCoord2f(0, 1); gl.glVertex3f(-0.5f, -0.5f, -0.5f);
 
         // Face lateral direita
-        gl.glVertex3f(0.5f, -0.5f, 0.5f);
-        gl.glVertex3f(0.5f, 0.5f, 0.5f);
-        gl.glVertex3f(0.5f, 0.5f, -0.5f);
-        gl.glVertex3f(0.5f, -0.5f, -0.5f);
+        gl.glTexCoord2f(0, 0); gl.glVertex3f(0.5f, -0.5f, 0.5f);
+        gl.glTexCoord2f(1, 0); gl.glVertex3f(0.5f, 0.5f, 0.5f);
+        gl.glTexCoord2f(1, 1); gl.glVertex3f(0.5f, 0.5f, -0.5f);
+        gl.glTexCoord2f(0, 1); gl.glVertex3f(0.5f, -0.5f, -0.5f);
 
         gl.glEnd();
 
         gl.glPopMatrix();
-    }
 
+        // Desativar a textura
+        pointTexture.disable(gl);
+    }
 
     public void move(float newX) {
 
@@ -204,6 +243,3 @@ public class ObstacleAndPoint {
         return false; // Sem colisão
     }
 }
-
-
-

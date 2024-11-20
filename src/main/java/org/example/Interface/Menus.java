@@ -5,6 +5,7 @@ import org.example.System.Game;
 import javax.swing.*;
 import java.awt.*;
 import java.awt.event.ActionListener;
+import java.io.IOException;
 
 public class Menus {
 
@@ -87,7 +88,11 @@ public class Menus {
         JButton retryButton = new JButton("Reiniciar Jogo");
         retryButton.addActionListener(e -> {
             if (game != null) {
-                game.resetGame();
+                try {
+                    game.resetGame();
+                } catch (IOException ex) {
+                    throw new RuntimeException(ex);
+                }
             }
             retryListener.actionPerformed(e);
         });

@@ -10,6 +10,8 @@ import org.example.Models.Models;
 import org.example.Models.ObstacleAndPoint;
 import org.example.Models.Track;
 
+import java.io.IOException;
+
 
 public class Game implements GLEventListener {
 
@@ -32,7 +34,7 @@ public class Game implements GLEventListener {
     private GameInterface gameInterface;
     private int score;
 
-    public Game() {
+    public Game()  {
         controls = new Controls();
     }
 
@@ -67,7 +69,11 @@ public class Game implements GLEventListener {
         obstacleAndPoints = new ObstacleAndPoint[maxObstacles];
         lighting = new Lighting();
 
-        generateRectangle();
+        try {
+            generateRectangle();
+        } catch (IOException e) {
+            throw new RuntimeException(e);
+        }
     }
 
 
@@ -158,7 +164,7 @@ public class Game implements GLEventListener {
         glu.gluLookAt(0, 5, 10, 0, 0, -5, 0, 1, 0);
     }
 
-    private void generateRectangle() {
+    private void generateRectangle() throws IOException {
         for (int i = 0; i < maxObstacles; i++) {
             float zPosition = (i + 1) * -10;
             float cubeSize = 2.0f;
@@ -198,7 +204,7 @@ public class Game implements GLEventListener {
         return (currentTime - lastJumpTime) >= jumpCooldown;
     }
 
-    public void resetGame() {
+    public void resetGame() throws IOException {
         // Resetando a posição do jogador
         posX = 0.0f;
         posY = 0.0f;

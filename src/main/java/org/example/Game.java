@@ -18,7 +18,7 @@ public class Game implements GLEventListener {
     private float posX = 0.0f;
     private float posY = 0.0f;
     private boolean isJumping = false;
-    private float jumpMaxHeight = 3.0f;
+    private float jumpMaxHeight = 3.5f;
     private float jumpVelocity = 0.2f;
     private float gravity = 0.2f;
     private Boolean canJump;
@@ -80,7 +80,7 @@ public class Game implements GLEventListener {
         handleJump();
 
         for (Rectangle rectangle : rectangles) {
-            if (rectangle.checkCollisionAndEndGame(posX, posY, model.getCubeSize())) {
+            if (rectangle.checkCollisionAndEndGame(posX, 0,posY, model.getCubeSize(), posY, model.getCubeSize())) {
                 if (gameInterface != null) {
                     currentGameState = gameState.GAMEOVER;
                     gameInterface.showGameOver();
@@ -134,7 +134,7 @@ public class Game implements GLEventListener {
     private void generateRectangle() {
         for (int i = 0; i < maxObstacles; i++) {
             float zPosition = (i + 1) * -10;
-            float cubeSize = 2.5f;
+            float cubeSize = 2.0f;
             rectangles[i] = new Rectangle(randomXPosition(), zPosition, cubeSize);
         }
     }

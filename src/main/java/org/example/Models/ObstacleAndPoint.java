@@ -73,6 +73,7 @@ public class ObstacleAndPoint {
 
     public void drawPoint(GL2 gl) {
         boolean isColected = false;
+        if (isCollected) return;
         gl.glPushMatrix();
         gl.glTranslatef(x, 3.5f, z);
         gl.glScalef(pointSize, pointSize, pointSize);

@@ -19,6 +19,7 @@ import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.IOException;
+import java.nio.file.Paths;
 
 
 public class Game implements GLEventListener {
@@ -44,7 +45,7 @@ public class Game implements GLEventListener {
     private Texture pointTexture;
     private Texture obstacleTexture;
     private Texture trackTexture;
-    private Texture backgroundTexture;
+    private Texture spaceTexture;
     private Background background;
     private Texture modelTexture;
 
@@ -86,29 +87,30 @@ public class Game implements GLEventListener {
     public void init(GLAutoDrawable glAutoDrawable){
         GL2 gl = glAutoDrawable.getGL().getGL2();
         GLU glu = new GLU();
+        String programPath = System.getProperty("user.dir");
+        String relativePath = programPath + "/src/main/java/org/example/Models";
 
         try {
-            pointTexture = loadTexture("/home/dandan/Documents/faculdade/computGraf/A3/TrabalhoA3/src/main/java/org/example/Models/textures/star.jpg");
-            
-            obstacleTexture = loadTexture("/home/dandan/Documents/faculdade/computGraf/A3/TrabalhoA3/src/main/java/org/example/Models/textures/asteroid2.jpg");
-            
-            trackTexture = loadTexture("/home/dandan/Documents/faculdade/computGraf/A3/TrabalhoA3/src/main/java/org/example/Models/textures/space.jpg");
-
-            backgroundTexture = loadTexture("/home/dandan/Documents/faculdade/computGraf/A3/TrabalhoA3/src/main/java/org/example/Models/textures/space.jpg");
-
-            modelTexture = loadTexture("/home/dandan/Documents/faculdade/computGraf/A3/TrabalhoA3/src/main/java/org/example/Models/textures/black_hole.jpg");
+            // Usando Paths.get() para garantir a compatibilidade de caminho entre sistemas operacionais
+            pointTexture = loadTexture(Paths.get(relativePath, "textures", "star.jpg").toString());
+            obstacleTexture = loadTexture(Paths.get(relativePath, "textures", "asteroid2.jpg").toString());
+            spaceTexture = loadTexture(Paths.get(relativePath, "textures", "space.jpg").toString());
+            modelTexture = loadTexture(Paths.get(relativePath, "textures", "black_hole.jpg").toString());
         } catch (IOException e) {
-            throw new RuntimeException(e);
+            // Exibe o caminho do arquivo que causou a exceção para ajudar no diagnóstico
+            System.err.println("Erro ao carregar a textura: " + e.getMessage());
+            System.err.println("Caminho do arquivo: " + Paths.get(relativePath, "textures", "star.jpg").toString());
+            throw new RuntimeException("Falha ao carregar texturas", e);
         }
 
         gl.glEnable(GL2.GL_DEPTH_TEST);
         gl.glClearColor(0, 0, 0, 1);
 
-        track = new Track(trackTexture);
+        track = new Track(spaceTexture);
         model = new Models(1.0f,modelTexture);
         obstacleAndPoints = new ObstacleAndPoint[maxObstacles];
         lighting = new Lighting();
-        background = new Background(backgroundTexture);
+        background = new Background(spaceTexture);
 
         try {
             generateRectangle();

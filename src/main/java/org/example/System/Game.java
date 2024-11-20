@@ -1,4 +1,4 @@
-package org.example;
+package org.example.System;
 
 import com.jogamp.opengl.GL2;
 import com.jogamp.opengl.GLAutoDrawable;
@@ -6,36 +6,47 @@ import com.jogamp.opengl.GLEventListener;
 import com.jogamp.opengl.awt.GLCanvas;
 import com.jogamp.opengl.glu.GLU;
 import org.example.Interface.GameInterface;
+import org.example.Models.Models;
+import org.example.Models.ObstacleAndPoint;
+import org.example.Models.Track;
+
 
 public class Game implements GLEventListener {
 
+    private final Controls controls;
+    private final int maxObstacles = 10;
+    private final float jumpMaxHeight = 3.5f;
+    private final float jumpVelocity = 0.2f;
+    private final float gravity = 0.2f;
+    private final long jumpCooldown = 1000;
     private Track track;
     private Models model;
-    private Rectangle[] rectangles;
+    private ObstacleAndPoint[] obstacleAndPoints;
     private Lighting lighting;
-    private Controls controls;
-    private int maxObstacles = 10;
     private float posX = 0.0f;
     private float posY = 0.0f;
     private boolean isJumping = false;
-    private float jumpMaxHeight = 3.5f;
-    private float jumpVelocity = 0.2f;
-    private float gravity = 0.2f;
-    private Boolean canJump;
-    private long jumpCooldown = 1000;
     private long lastJumpTime = 0;
-    public enum gameState{MENU,INGAME,GAMEOVER};
     private gameState currentGameState = gameState.MENU;
+    private boolean firstSpawn = true;
     private GameInterface gameInterface;
+    private int score;
 
     public Game() {
         controls = new Controls();
     }
+
+    public static float randomXPosition() {
+
+        int sign = Math.random() > 0.5 ? 1 : -1;
+        return (float) (Math.floor(Math.random() * 5 * sign));
+    }
+
     public void setGameInterface(GameInterface gameInterface) {
         this.gameInterface = gameInterface;
     }
 
-    public void setGameState(gameState state){
+    public void setGameState(gameState state) {
         this.currentGameState = state;
     }
 
@@ -53,7 +64,7 @@ public class Game implements GLEventListener {
 
         track = new Track();
         model = new Models(1.0f);
-        rectangles = new Rectangle[maxObstacles];
+        obstacleAndPoints = new ObstacleAndPoint[maxObstacles];
         lighting = new Lighting();
 
         generateRectangle();
@@ -69,23 +80,30 @@ public class Game implements GLEventListener {
         float moveSpeed = 0.1f;
         if (controls.isMoveLeft()) {
             posX -= moveSpeed;
-            if (posX < -5.0f){posX = - 5.0f;}
-
+            if (posX < -5.0f) {
+                posX = -5.0f;
+            }
         }
         if (controls.isMoveRight()) {
             posX += moveSpeed;
-            if (posX > 5.0f){posX = 5.0f;}
+            if (posX > 5.0f) {
+                posX = 5.0f;
+            }
         }
 
         handleJump();
 
-        for (Rectangle rectangle : rectangles) {
-            if (rectangle.checkCollisionAndEndGame(posX, 0,posY, model.getCubeSize(), posY, model.getCubeSize())) {
+        for (ObstacleAndPoint obstacleAndPoint : obstacleAndPoints) {
+            if (obstacleAndPoint.checkObstacleColision(posX, 0, posY, model.getCubeSize())) {
                 if (gameInterface != null) {
                     currentGameState = gameState.GAMEOVER;
                     gameInterface.showGameOver();
+
                 }
                 return;
+            }
+            if (obstacleAndPoint.checkPointColision(posX,0,posY,model.getCubeSize(),jumpMaxHeight)){
+                scoreAPoint();
             }
         }
 
@@ -99,15 +117,24 @@ public class Game implements GLEventListener {
         track.draw(gl);
 
         // Rendering the cube
-        model.draw(gl,posX,posY);
+        model.draw(gl, posX, posY);
 
         //Rendering obstacles
 
-        for (Rectangle rectangle : rectangles) {
-            rectangle.draw(gl);
+        for (ObstacleAndPoint obstacleAndPoint : obstacleAndPoints) {
+            obstacleAndPoint.drawObstacle(gl);
+            obstacleAndPoint.drawPoint(gl);
         }
 
         update();
+    }
+
+    private void scoreAPoint() {
+        this.score += 1;
+    }
+
+    public int getScore(){
+        return this.score;
     }
 
 
@@ -135,22 +162,18 @@ public class Game implements GLEventListener {
         for (int i = 0; i < maxObstacles; i++) {
             float zPosition = (i + 1) * -10;
             float cubeSize = 2.0f;
-            rectangles[i] = new Rectangle(randomXPosition(), zPosition, cubeSize);
+            if (firstSpawn){zPosition += -50;}
+            obstacleAndPoints[i] = new ObstacleAndPoint(randomXPosition(), zPosition, cubeSize);
         }
+        firstSpawn = false;
     }
-    
+
     private void update() {
         track.move();
 
-        for (Rectangle rectangle : rectangles) {
-            rectangle.move(randomXPosition());
+        for (ObstacleAndPoint ObstacleAndPoint : obstacleAndPoints) {
+            ObstacleAndPoint.move(randomXPosition());
         }
-    }
-
-    public static float randomXPosition() {
-
-        int sign = Math.random() > 0.5 ? 1 : -1;
-        return (float) (Math.floor(Math.random() * 5 * sign));
     }
 
     private void handleJump() {
@@ -180,16 +203,13 @@ public class Game implements GLEventListener {
         posX = 0.0f;
         posY = 0.0f;
         isJumping = false;
-        canJump = true;
-
-        // Resetando os obstáculos
+        Boolean canJump = true;
         generateRectangle();
-
-        // Reiniciando o estado do jogo
         currentGameState = gameState.INGAME;
+        this.score = 0;
     }
 
-
+    public enum gameState {MENU, INGAME, GAMEOVER}
 }
 
 

@@ -1,9 +1,11 @@
-package org.example;
+package org.example.Models;
 
 import com.jogamp.opengl.GL2;
 
 public class Models {
-    private float x = 0, y = 0, z = 0;
+    private final float x = 0;
+    private final float y = 0;
+    private final float z = 0;
     private float cubeSize = 1.0f;
 
     // Construtor que permite definir o tamanho do cubo

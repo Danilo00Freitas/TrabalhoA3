@@ -1,4 +1,4 @@
-package org.example;
+package org.example.Models;
 
 import com.jogamp.opengl.GL2;
 

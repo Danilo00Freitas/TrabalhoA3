@@ -1,4 +1,4 @@
-package org.example;
+package org.example.System;
 
 import com.jogamp.opengl.awt.GLCanvas;
 
@@ -57,5 +57,7 @@ public class Controls {
         return moveRight;
     }
 
-    public boolean isJump() {return jump;}
+    public boolean isJump() {
+        return jump;
+    }
 }

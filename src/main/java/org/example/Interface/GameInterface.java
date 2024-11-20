@@ -4,7 +4,7 @@ import com.jogamp.opengl.GLCapabilities;
 import com.jogamp.opengl.GLProfile;
 import com.jogamp.opengl.awt.GLCanvas;
 import com.jogamp.opengl.util.FPSAnimator;
-import org.example.Game;
+import org.example.System.Game;
 
 import javax.swing.*;
 import java.awt.*;
@@ -12,12 +12,10 @@ import java.awt.*;
 public class GameInterface {
 
     private Game game;
-    private GLCanvas canvas;
+    private final GLCanvas canvas;
     private FPSAnimator animator;
-    private Menus menus;
-    private enum GameState { MENU, PLAYING, GAME_OVER }
+    private final Menus menus;
     private GameState currentState = GameState.MENU;
-
     private JFrame gameFrame;
 
     public GameInterface() {
@@ -75,7 +73,7 @@ public class GameInterface {
     public void showGameOver() {
         currentState = GameState.GAME_OVER;
         stopGame();
-        menus.showGameOver();
+        menus.showGameOver(game.getScore());
         gameFrame.setVisible(false);
     }
 
@@ -101,5 +99,7 @@ public class GameInterface {
         // Reinicia o jogo
         startGame();
     }
+
+    private enum GameState {MENU, PLAYING, GAME_OVER}
 }
 

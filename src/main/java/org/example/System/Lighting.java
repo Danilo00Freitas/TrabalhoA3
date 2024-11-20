@@ -1,4 +1,4 @@
-package org.example;
+package org.example.System;
 
 import com.jogamp.opengl.GL2;
 
